@@ -1,0 +1,22 @@
+{
+  "name": "johnimedia/linuxsamplerclient",
+  "description": "PHP Client for Linux Sampler",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Johannes Zinnau",
+      "email": "johannes@johnimedia.de"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Johnimedia\\": "src/main/Johnimedia",
+      "Johnimedia\\LinuxSampler\\Client\\Examples\\": "src/examples/Johnimedia/LinuxSampler/Client/Examples"
+    }
+  },
+  "require": {
+    "phpunit/phpunit": "5.3.x-dev",
+    "symfony/console": "v3.0.1"
+  }
+}
