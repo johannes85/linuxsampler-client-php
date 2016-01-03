@@ -11,6 +11,10 @@ use Johnimedia\LinuxSampler\Client\Response\StringList;
 class LinuxSampler
 {
 
+  const MIDI_MESSAGE_NOTE_ON = 'NOTE_ON';
+  const MIDI_MESSAGE_NOTE_OFF = 'NOTE_OFF';
+  const MIDI_MESSAGE_CC = 'CC';
+
   /** @var string */
   private $host;
 
@@ -23,6 +27,11 @@ class LinuxSampler
   {
     $this->host = $host;
     $this->port = $port;
+  }
+
+  public function __destruct()
+  {
+    $this->disconnect();
   }
 
   public function connect()
@@ -43,7 +52,9 @@ class LinuxSampler
 
   public function disconnect()
   {
-
+    if ($this->isConnected()) {
+      fclose($this->socket);
+    }
   }
 
   /**
@@ -291,5 +302,33 @@ class LinuxSampler
   public function getChannelList() {
     $res = $this->send('LIST CHANNELS', false);
     return (new StringList($res))->items;
+  }
+
+  /**
+   * Sending MIDI messages to sampler channel
+   *
+   * @param string $midiMsg
+   * @param int $samplerChannelId
+   * @param $arg1
+   * @param $arg2
+   * @return bool
+   * @throws LinuxSamplerException
+   */
+  public function sendChannelMidiData($midiMsg, $samplerChannelId, $arg1, $arg2) {
+    $res = $this->send(sprintf(
+      'SEND CHANNEL MIDI_DATA %s %s %s %s',
+      $midiMsg,
+      $samplerChannelId,
+      $arg1,
+      $arg2
+    ), false);
+    return (new Boolean($res, function ($no, $message) use ($midiMsg, $samplerChannelId) {
+      throw new LinuxSamplerException(sprintf(
+        'Could not send midi message %s to sampler channel %s (%s)',
+        $midiMsg,
+        $samplerChannelId,
+        $message
+      ));
+    }))->value;
   }
 }
