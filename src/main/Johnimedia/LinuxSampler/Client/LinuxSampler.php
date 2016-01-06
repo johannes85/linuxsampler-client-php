@@ -314,9 +314,32 @@ class LinuxSampler
     ), false);
     return (new Boolean($res, function ($no, $message) use ($instrumentId, $filename) {
       throw new LinuxSamplerException(sprintf(
-        'Could not load instrument %s from file %s',
+        'Could not load instrument %s from file %s (%s)',
         $instrumentId,
         $filename,
+        $message
+      ));
+    }))->value;
+  }
+
+  /**
+   * Loading a sampler engine
+   *
+   * @param string $name
+   * @param int $samplerChannelId
+   * @return bool
+   * @throws LinuxSamplerException
+   */
+  public function loadEngine($name, $samplerChannelId) {
+    $res = $this->send(sprintf(
+      'LOAD ENGINE %s %s',
+      $name,
+      $samplerChannelId
+    ), false);
+    return (new Boolean($res, function ($no, $message) use ($name) {
+      throw new LinuxSamplerException(sprintf(
+        'Could not load sampler engine %s (%s)',
+        $name,
         $message
       ));
     }))->value;
