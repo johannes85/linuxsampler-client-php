@@ -3,6 +3,14 @@ require __DIR__.'/../../../../../../../vendor/autoload.php';
 
 $instrumentFiles = [
   [
+    'name' => 'KAWAI',
+    'path' => '/home/pi/linuxsampler/KAWAI.SF2'
+  ],
+  [
+    'name' => 'Accodion',
+    'path' => '/home/pi/linuxsampler/accordion.sf2'
+  ],
+  [
     'name' => 'TaijiguyGigaTron',
     'path' => '/home/pi/linuxsampler/TaijiguyGigaTron_switched.gig'
   ],
