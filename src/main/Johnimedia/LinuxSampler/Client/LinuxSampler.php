@@ -3,6 +3,8 @@ namespace Johnimedia\LinuxSampler\Client;
 
 use Johnimedia\LinuxSampler\Client\Response\AudioOutputDriver;
 use Johnimedia\LinuxSampler\Client\Response\Boolean;
+use Johnimedia\LinuxSampler\Client\Response\ChannelInfos;
+use Johnimedia\LinuxSampler\Client\Response\InstrumentInfo;
 use Johnimedia\LinuxSampler\Client\Response\Integer;
 use Johnimedia\LinuxSampler\Client\Response\MidiInputDeviceSettings;
 use Johnimedia\LinuxSampler\Client\Response\MidiInputDriver;
@@ -64,6 +66,16 @@ class LinuxSampler
    */
   private function isConnected() {
     return $this->socket != null;
+  }
+
+  /**
+   * Escapes string for sending it to the api
+   *
+   * @param $string
+   * @return string
+   */
+  private function escape($string) {
+    return $string;
   }
 
   /**
@@ -283,6 +295,34 @@ class LinuxSampler
   }
 
   /**
+   * Loading an instrument
+   *
+   * @param string $filename
+   * @param int $instrumentId
+   * @param int $samplerChannelId
+   * @param bool $modal
+   * @return bool
+   * @throws LinuxSamplerException
+   */
+  public function loadInstrument($filename, $instrumentId, $samplerChannelId, $modal = true) {
+    $res = $this->send(sprintf(
+      'LOAD INSTRUMENT %s\'%s\' %s %s',
+      $modal ? '' : 'NON_MODAL ',
+      $this->escape($filename),
+      $instrumentId,
+      $samplerChannelId
+    ), false);
+    return (new Boolean($res, function ($no, $message) use ($instrumentId, $filename) {
+      throw new LinuxSamplerException(sprintf(
+        'Could not load instrument %s from file %s',
+        $instrumentId,
+        $filename,
+        $message
+      ));
+    }))->value;
+  }
+
+  /**
    * Getting all created sampler channel count
    *
    * @return int
@@ -302,6 +342,18 @@ class LinuxSampler
   public function getChannelList() {
     $res = $this->send('LIST CHANNELS', false);
     return (new StringList($res))->items;
+  }
+
+  /**
+   * Getting sampler channel information
+   *
+   * @param int $samplerChannelId
+   * @return ChannelInfos
+   * @throws LinuxSamplerException
+   */
+  public function getChannelInfos($samplerChannelId) {
+    $res = $this->send('GET CHANNEL INFO ' . $samplerChannelId, true);
+    return new ChannelInfos($res);
   }
 
   /**
@@ -330,5 +382,34 @@ class LinuxSampler
         $message
       ));
     }))->value;
+  }
+
+  /**
+   * Retrieving all instruments of a file
+   *
+   * @param string $filename
+   * @return int[]
+   * @throws LinuxSamplerException
+   */
+  public function listFileInstruments($filename) {
+    $res = $this->send('LIST FILE INSTRUMENTS \'' . $this->escape($filename) . '\'', false);
+    return (new StringList($res))->items;
+  }
+
+  /**
+   * Retrieving informations about one instrument in a file
+   *
+   * @param string $filename
+   * @param int $instrumentId
+   * @return InstrumentInfo
+   * @throws LinuxSamplerException
+   */
+  public function getFileInstrumentInfo($filename, $instrumentId) {
+    $res = $this->send(sprintf(
+      'GET FILE INSTRUMENT INFO \'%s\' %s',
+      $filename,
+      $instrumentId
+    ), true);
+    return new InstrumentInfo($res);
   }
 }

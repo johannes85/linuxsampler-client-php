@@ -1,5 +1,5 @@
 <?php
-namespace Johnimedia\LinuxSampler\Client\Examples;
+namespace Johnimedia\LinuxSampler\Client\Examples\Cli;
 
 use Johnimedia\LinuxSampler\Client\LinuxSampler;
 use Symfony\Component\Console\Command\Command;

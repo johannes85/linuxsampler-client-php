@@ -14,7 +14,7 @@ abstract class AbstractProperties extends Response
   protected function parseData(array $data)
   {
     foreach ($data as $line) {
-      if (preg_match('/([A-Z]+):\s*(.*)/', $line, $m)) {
+      if (preg_match('/([A-Z_]+):\s*(.*)/', $line, $m)) {
         $field = strtolower($m[1]);
         if (isset($this->singleProperties[$field])) {
           $this->$field = $m[2];
